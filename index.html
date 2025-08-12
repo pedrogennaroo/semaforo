@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Semáforo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      margin-top: 40px;
+    }
+    .semaforo {
+      background: #222;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .light {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #444;
+      margin: 10px auto;
+      opacity: 0.3;
+      transition: opacity 0.3s;
+    }
+    .on {
+      opacity: 1;
+    }
+    .red { background: red; }
+    .yellow { background: yellow; }
+    .green { background: lime; }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Simulação de Semáforo</h1>
+  <div>
+    <button onclick="startCycle()">Start</button>
+    <button onclick="stopCycle()">Stop</button>
+  </div>
+
+  <div class="container">
+    <!-- Semáforo Veículos -->
+    <div>
+      <h3>Veículos</h3>
+      <div class="semaforo" id="vehicle">
+        <div class="light red" id="v-red"></div>
+        <div class="light yellow" id="v-yellow"></div>
+        <div class="light green" id="v-green"></div>
+      </div>
+    </div>
+
+    <!-- Semáforo Pedestres -->
+    <div>
+      <h3>Pedestres</h3>
+      <div class="semaforo" id="pedestrian">
+        <div class="light green" id="p-green"></div>
+        <div class="light yellow" id="p-yellow"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status" id="status">Parado</div>
+
+  <script>
+    let running = false;
+    let step = 0;
+    let timer = null;
+
+    function updateLights(vRed, vYellow, vGreen, pGreen, pYellow) {
+      document.getElementById("v-red").classList.toggle("on", vRed);
+      document.getElementById("v-yellow").classList.toggle("on", vYellow);
+      document.getElementById("v-green").classList.toggle("on", vGreen);
+      document.getElementById("p-green").classList.toggle("on", pGreen);
+      document.getElementById("p-yellow").classList.toggle("on", pYellow);
+    }
+
+    function startCycle() {
+      if (running) return;
+      running = true;
+      step = 0;
+      document.getElementById("status").innerText = "Rodando";
+      runStep();
+    }
+
+    function stopCycle() {
+      running = false;
+      clearTimeout(timer);
+      document.getElementById("status").innerText = "Parado";
+      updateLights(false, false, false, false, false);
+    }
+
+    function runStep() {
+      if (!running) return;
+
+      switch (step) {
+        case 0: // Veículo verde, pedestre parado
+          updateLights(false, false, true, false, false);
+          timer = setTimeout(() => { step = 1; runStep(); }, 8000);
+          break;
+        case 1: // Veículo amarelo
+          updateLights(false, true, false, false, false);
+          timer = setTimeout(() => { step = 2; runStep(); }, 3000);
+          break;
+        case 2: // Veículo vermelho, pedestre verde
+          updateLights(true, false, false, true, false);
+          timer = setTimeout(() => { step = 3; runStep(); }, 6000);
+          break;
+        case 3: // Veículo vermelho, pedestre amarelo
+          updateLights(true, false, false, false, true);
+          timer = setTimeout(() => { step = 0; runStep(); }, 2000);
+          break;
+      }
+    }
+  </script>
